@@ -3,7 +3,7 @@ package org.netcracker.eventteammatessearch.security.Providers;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,15 +18,18 @@ import javax.transaction.Transactional;
 @Component
 public class UsernamePasswordAuthProvider implements AuthenticationProvider {
     private static final Logger logger = LoggerFactory.getLogger(UsernamePasswordAuthProvider.class);
-    @Autowired
     private UserDetailsManager userDetailsManager;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public UsernamePasswordAuthProvider(UserDetailsManager userDetailsManager, @Lazy PasswordEncoder passwordEncoder) {
+        this.userDetailsManager = userDetailsManager;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-            UserDetails userDetails = userDetailsManager.loadUserByUsername(authentication.getName());
+        UserDetails userDetails = userDetailsManager.loadUserByUsername(authentication.getName());
         if (userDetails != null && passwordEncoder.matches(String.valueOf(authentication.getCredentials()), userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
         } else {

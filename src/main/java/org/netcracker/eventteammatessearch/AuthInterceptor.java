@@ -9,8 +9,8 @@ import org.netcracker.eventteammatessearch.persistence.repositories.ChatUserRepo
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Persistence.Entity.UserDetailsManager;
 import org.netcracker.eventteammatessearch.security.Providers.JwtAuthProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -29,16 +29,18 @@ import java.util.Map;
 public class AuthInterceptor implements ChannelInterceptor {
     @Value("${jwt.secretKey}")
     private String secret;
-    @Autowired
+
     private JwtAuthProvider jwtAuthProvider;
-    @Autowired
     private UserDetailsManager userDetailsManager;
-
-    @Autowired
     private ChatRepository chatRepository;
-
-    @Autowired
     private ChatUserRepository chatUserRepository;
+
+    public AuthInterceptor(@Lazy JwtAuthProvider jwtAuthProvider, @Lazy UserDetailsManager userDetailsManager, @Lazy ChatRepository chatRepository, @Lazy ChatUserRepository chatUserRepository) {
+        this.jwtAuthProvider = jwtAuthProvider;
+        this.userDetailsManager = userDetailsManager;
+        this.chatRepository = chatRepository;
+        this.chatUserRepository = chatUserRepository;
+    }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {

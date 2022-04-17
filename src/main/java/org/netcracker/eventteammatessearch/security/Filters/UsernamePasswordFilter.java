@@ -2,7 +2,7 @@ package org.netcracker.eventteammatessearch.security.Filters;
 
 import org.netcracker.eventteammatessearch.security.Entity.JWTAuthentication;
 import org.netcracker.eventteammatessearch.security.Services.JwtTokenGeneratorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,11 +24,11 @@ import java.io.IOException;
 @Component
 public class UsernamePasswordFilter extends AbstractAuthenticationProcessingFilter {
 
-    @Autowired
     private JwtTokenGeneratorService jwtTokenGeneratorService;
 
-    public UsernamePasswordFilter(RequestMatcher requiresAuthenticationRequestMatcher, AuthenticationManager authenticationManager) {
+    public UsernamePasswordFilter(@Lazy RequestMatcher requiresAuthenticationRequestMatcher, @Lazy AuthenticationManager authenticationManager, @Lazy JwtTokenGeneratorService tokenGeneratorService) {
         super("/login", authenticationManager);
+        this.jwtTokenGeneratorService = tokenGeneratorService;
     }
 
     @Override

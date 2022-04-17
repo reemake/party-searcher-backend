@@ -2,7 +2,7 @@ package org.netcracker.eventteammatessearch.security.Persistence.Entity;
 
 import org.netcracker.eventteammatessearch.entity.User;
 import org.netcracker.eventteammatessearch.persistence.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,15 +14,17 @@ import java.util.stream.Collectors;
 
 @Component
 public class UserDetailsManager implements org.springframework.security.provisioning.UserDetailsManager {
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public UserDetailsManager(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public void createUser(UserDetails user) {
-       org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
+        org.netcracker.eventteammatessearch.security.Entity.UserDetails userDetails = (org.netcracker.eventteammatessearch.security.Entity.UserDetails) user;
         userDetails.getUser().setPassword(passwordEncoder.encode(userDetails.getPassword()));
         if (userRepository.findById(userDetails.getUsername()).isEmpty())
             userRepository.save(userDetails.getUser());
